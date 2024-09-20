@@ -4,12 +4,10 @@ type: "python:3.12"
 relationships:
     database: "db:postgresql"
 
-#The config when the app is expossed to the web
+# The config when the app is exposed to the web
 web:
-    upstream:
-        socket_family: unix
     commands:
-        start:  "gunicorn -w 4 -b unix:$SOCKET ll_project.wsgi:application"
+        start: "gunicorn -w 4 -b 0.0.0.0:8080 ll_project.wsgi:application"
     locations:
         "/":
             passthru: true
@@ -21,22 +19,20 @@ web:
 # The size of the persistent disk of the application (in MB).
 disk: 512
 
-#Set a local read/write mount for logs.
+# Set a local read/write mount for logs.
 mounts:
-    "logs":
+    "/logs":
         source: local
-        source_path: logs
+        source_path: "logs"
 
 # The hooks executed at various points in the lifecycle of the application.
 hooks:
     build: |
         pip install --upgrade pip
-        pip install -r requirements.text
-        pip install -r requirements_remote.text
+        pip install -r requirements.txt
+        pip install -r requirements_remote.txt
 
-        mkdir logs
-        python manage.py collectstatic
-        rm -rf logs
+        mkdir -p logs
+        python manage.py collectstatic --noinput
     deploy: |
         python manage.py migrate
-
