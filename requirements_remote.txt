@@ -1,3 +1,4 @@
 # Requirements for live project.
+Django>=4.0
 gunicorn
 psycopg2
